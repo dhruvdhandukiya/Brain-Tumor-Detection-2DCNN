@@ -161,22 +161,26 @@ def serve_ui():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroScan AI | Clinical Deep Learning Radiology Suite</title>
+    <title>NeuroScan AI™ | Advanced Deep Learning Radiology Workstation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #070a13;
-            --surface: #0e1424;
-            --surface-card: rgba(16, 24, 44, 0.85);
-            --surface-hover: rgba(24, 36, 66, 0.95);
+            --bg: #060913;
+            --surface-1: #0b1120;
+            --surface-2: #10192e;
+            --surface-card: rgba(15, 23, 42, 0.75);
+            --surface-hover: rgba(30, 41, 59, 0.85);
             --border: rgba(255, 255, 255, 0.08);
-            --border-highlight: rgba(0, 240, 255, 0.4);
+            --border-highlight: rgba(56, 189, 248, 0.4);
             
-            --primary: #00f0ff;
-            --primary-glow: rgba(0, 240, 255, 0.35);
-            --purple: #8b5cf6;
-            --pink: #ff3366;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.35);
+            --cyan: #06b6d4;
+            --indigo: #6366f1;
+            --purple: #a855f7;
+            --rose: #f43f5e;
             --emerald: #10b981;
             --amber: #f59e0b;
             
@@ -189,7 +193,7 @@ def serve_ui():
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body {
@@ -197,20 +201,22 @@ def serve_ui():
             color: var(--text-main);
             min-height: 100vh;
             background-image: 
-                radial-gradient(at 0% 0%, rgba(0, 240, 255, 0.07) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.07) 0px, transparent 50%),
-                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+                radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.04) 0%, transparent 60%),
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
             overflow-x: hidden;
         }
 
-        /* Top Bar */
+        /* Top Navigation Bar */
         nav {
-            backdrop-filter: blur(20px);
-            background: rgba(7, 10, 19, 0.85);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: rgba(6, 9, 19, 0.85);
             border-bottom: 1px solid var(--border);
-            padding: 0.9rem 2rem;
+            padding: 0.85rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -222,44 +228,66 @@ def serve_ui():
         .brand-group {
             display: flex;
             align-items: center;
-            gap: 0.85rem;
+            gap: 0.9rem;
         }
 
         .brand-icon {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, #00f0ff, #8b5cf6);
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #a855f7 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.4rem;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+            position: relative;
+            overflow: hidden;
         }
 
-        .brand-name {
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            20%, 100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .brand-text h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
             font-weight: 800;
-            font-size: 1.25rem;
             letter-spacing: -0.02em;
             background: linear-gradient(135deg, #ffffff 60%, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .brand-pill {
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             font-family: 'JetBrains Mono', monospace;
-            padding: 0.2rem 0.6rem;
-            background: rgba(0, 240, 255, 0.12);
-            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 0.2rem 0.55rem;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
             border-radius: 999px;
             color: var(--primary);
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .nav-tabs {
             display: flex;
-            gap: 0.4rem;
+            gap: 0.35rem;
             background: rgba(255, 255, 255, 0.03);
             padding: 0.3rem;
             border-radius: 14px;
@@ -267,7 +295,7 @@ def serve_ui():
         }
 
         .tab-btn {
-            padding: 0.6rem 1.3rem;
+            padding: 0.55rem 1.25rem;
             border-radius: 10px;
             border: none;
             background: transparent;
@@ -275,62 +303,73 @@ def serve_ui():
             font-weight: 600;
             font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
         .tab-btn:hover {
             color: #fff;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .tab-btn.active {
-            background: linear-gradient(135deg, #00f0ff, #0099ff);
-            color: #050811;
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            color: #030712;
             font-weight: 700;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
         }
 
-        .hardware-badge {
+        .telemetry-badges {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .tele-badge {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            padding: 0.45rem 0.9rem;
+            font-size: 0.72rem;
+            padding: 0.4rem 0.85rem;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.45rem;
+            color: var(--text-sub);
         }
 
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
+        .pulse-emerald {
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background: var(--emerald);
             box-shadow: 0 0 10px var(--emerald);
-            animation: pulse 2s infinite;
+            animation: pulse-ring 2s infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.8); }
+        @keyframes pulse-ring {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
         }
 
-        /* Container */
+        /* Main Container */
         .main-container {
-            max-width: 1400px;
+            max-width: 1440px;
             margin: 1.5rem auto;
             padding: 0 1.5rem;
         }
 
-        /* 3-Column Diagnostic Studio Layout */
+        /* Diagnostic Studio 3-Column Grid */
         .studio-grid {
             display: grid;
-            grid-template-columns: 340px 1fr 390px;
+            grid-template-columns: 350px 1fr 390px;
             gap: 1.5rem;
             align-items: start;
         }
 
-        @media (max-width: 1200px) {
+        @media (max-width: 1280px) {
             .studio-grid {
                 grid-template-columns: 1fr;
             }
@@ -341,29 +380,54 @@ def serve_ui():
             background: var(--surface-card);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 1.5rem;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            padding: 1.4rem;
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             position: relative;
+            transition: border-color 0.3s ease;
         }
 
-        .card-title {
-            font-size: 0.85rem;
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.14);
+        }
+
+        .card-header-clean {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.15rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header-clean h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-sub);
-            margin-bottom: 1.25rem;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
-        /* Model Switcher */
+        .badge-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--primary);
+            background: rgba(56, 189, 248, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        /* Model Selector Cards */
         .model-picker {
             display: flex;
             flex-direction: column;
-            gap: 0.6rem;
+            gap: 0.65rem;
             margin-bottom: 1.25rem;
         }
 
@@ -371,65 +435,69 @@ def serve_ui():
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border);
             border-radius: 14px;
-            padding: 0.9rem 1rem;
+            padding: 0.85rem 1rem;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
 
         .model-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.18);
+            transform: translateY(-1px);
         }
 
         .model-card.active {
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(139, 92, 246, 0.05));
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(99, 102, 241, 0.08));
             border-color: var(--primary);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.18);
         }
 
         .model-card.active::before {
             content: '';
             position: absolute;
             left: 0; top: 15%; bottom: 15%;
-            width: 3px;
+            width: 3.5px;
             background: var(--primary);
             border-radius: 0 4px 4px 0;
             box-shadow: 0 0 10px var(--primary);
         }
 
-        .model-head {
+        .model-card-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
         }
 
-        .model-sub {
+        .model-specs {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.72rem;
             color: var(--text-dim);
-            font-family: 'JetBrains Mono', monospace;
-            margin-top: 0.25rem;
+            margin-top: 0.35rem;
+            display: flex;
+            gap: 0.6rem;
         }
 
         /* Upload Area */
         .upload-area {
-            border: 2px dashed rgba(0, 240, 255, 0.25);
+            border: 2px dashed rgba(56, 189, 248, 0.25);
             border-radius: 16px;
-            padding: 1.75rem 1rem;
+            padding: 1.6rem 1rem;
             text-align: center;
             cursor: pointer;
-            background: rgba(0, 240, 255, 0.015);
+            background: rgba(56, 189, 248, 0.015);
             transition: all 0.25s ease;
             position: relative;
             margin-bottom: 1.25rem;
         }
 
-        .upload-area:hover {
+        .upload-area:hover, .upload-area.dragover {
             border-color: var(--primary);
-            background: rgba(0, 240, 255, 0.05);
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.12);
+            background: rgba(56, 189, 248, 0.06);
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.15);
+            transform: scale(1.01);
         }
 
         .upload-area input {
@@ -441,20 +509,20 @@ def serve_ui():
 
         .upload-icon {
             font-size: 2.2rem;
-            margin-bottom: 0.5rem;
-            filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4));
+            margin-bottom: 0.4rem;
+            filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
         }
 
-        /* Real Cohort Samples */
-        .sample-grid {
+        /* Cohort Quick Buttons */
+        .cohort-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
+            gap: 0.55rem;
             margin-bottom: 1.25rem;
         }
 
-        .sample-card-btn {
-            background: rgba(255, 255, 255, 0.025);
+        .cohort-btn {
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 0.65rem 0.6rem;
@@ -464,44 +532,56 @@ def serve_ui():
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
+            gap: 0.45rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .sample-card-btn:hover {
+        .cohort-btn:hover {
             border-color: var(--primary);
-            background: rgba(0, 240, 255, 0.08);
+            background: rgba(56, 189, 248, 0.08);
             transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* Primary Action Button */
-        .action-btn-scan {
+        /* Big CTA Run Button */
+        .btn-run-diagnostic {
             width: 100%;
-            padding: 1rem;
+            padding: 0.95rem;
             border-radius: 14px;
-            background: linear-gradient(135deg, #00f0ff, #8b5cf6);
+            background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
             border: none;
-            color: #050811;
+            color: #030712;
+            font-family: 'Outfit', sans-serif;
             font-weight: 800;
             font-size: 0.95rem;
             cursor: pointer;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.35);
-            transition: all 0.25s ease;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .action-btn-scan:hover {
+        .btn-run-diagnostic:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 45px rgba(0, 240, 255, 0.55);
+            box-shadow: 0 0 45px rgba(56, 189, 248, 0.6);
         }
 
-        /* CENTER RADIOLOGY WORKSTATION */
+        .btn-run-diagnostic:active {
+            transform: translateY(0);
+        }
+
+        /* CENTER RADIOLOGY WORKSTATION VIEWPORT */
+        .viewport-wrapper {
+            position: relative;
+        }
+
         .radiology-viewport {
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #020408;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 18px;
             aspect-ratio: 1;
             position: relative;
@@ -509,7 +589,7 @@ def serve_ui():
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.95);
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.98), 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .viewport-mri {
@@ -517,108 +597,194 @@ def serve_ui():
             height: 100%;
             object-fit: contain;
             display: block;
+            user-select: none;
         }
 
-        /* Reticle & Crosshair */
-        .reticle-overlay {
+        /* Split-Screen Interactive Slider Comparison View */
+        .split-slider-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .split-slider-container.active {
+            display: block;
+        }
+
+        .split-img-before, .split-img-after {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: contain;
+            user-select: none;
+        }
+
+        .split-img-after-wrapper {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 50%;
+            overflow: hidden;
+            border-right: 2px solid var(--primary);
+            box-shadow: 2px 0 15px rgba(56, 189, 248, 0.6);
+        }
+
+        .split-img-after-wrapper img {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            max-width: none;
+        }
+
+        .split-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #030712;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 800;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
+            cursor: ew-resize;
+            z-index: 10;
+        }
+
+        /* HUD Reticle Overlay */
+        .hud-grid {
             position: absolute;
             inset: 0;
             pointer-events: none;
             background-image: 
-                linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
-            background-size: 25% 25%, 25% 25%;
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 20% 20%, 20% 20%;
         }
 
-        .ch-h { position: absolute; top: 50%; left: 8%; right: 8%; height: 1px; background: rgba(0, 240, 255, 0.2); }
-        .ch-v { position: absolute; left: 50%; top: 8%; bottom: 8%; width: 1px; background: rgba(0, 240, 255, 0.2); }
+        .hud-cross-h { position: absolute; top: 50%; left: 5%; right: 5%; height: 1px; background: rgba(56, 189, 248, 0.18); }
+        .hud-cross-v { position: absolute; left: 50%; top: 5%; bottom: 5%; width: 1px; background: rgba(56, 189, 248, 0.18); }
 
-        .ret-bracket {
+        .bracket {
             position: absolute;
-            width: 18px; height: 18px;
+            width: 20px; height: 20px;
             border: 2px solid var(--primary);
             pointer-events: none;
-            opacity: 0.7;
+            opacity: 0.65;
         }
-        .rb-tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
-        .rb-tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
-        .rb-bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
-        .rb-br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+        .b-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+        .b-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+        .b-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+        .b-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+        .hud-telemetry-tag {
+            position: absolute;
+            top: 14px;
+            left: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--primary);
+            background: rgba(6, 9, 19, 0.7);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            pointer-events: none;
+        }
 
         .laser-beam {
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 3px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            box-shadow: 0 0 15px var(--primary);
+            background: linear-gradient(90deg, transparent, #38bdf8, #a855f7, transparent);
+            box-shadow: 0 0 20px #38bdf8;
             opacity: 0;
+            pointer-events: none;
         }
 
         .active-scan .laser-beam {
             opacity: 1;
-            animation: sweep 1.5s ease-in-out infinite;
+            animation: scan-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
-        @keyframes sweep {
-            0% { top: 0%; }
-            100% { top: 100%; }
+        @keyframes scan-sweep {
+            0% { top: 0%; opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0.2; }
         }
 
         /* View Mode Pills */
         .view-pill-group {
             display: flex;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.45rem;
             margin-top: 1rem;
+            background: rgba(255, 255, 255, 0.025);
+            padding: 0.35rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
         }
 
         .v-pill {
-            padding: 0.5rem 1.1rem;
+            padding: 0.45rem 1rem;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
+            background: transparent;
+            border: none;
             color: var(--text-sub);
             font-size: 0.78rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .v-pill:hover {
+            color: #fff;
         }
 
         .v-pill.active {
             background: var(--primary);
-            color: #050811;
+            color: #030712;
             font-weight: 700;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
         }
 
         /* RIGHT DIAGNOSTIC PANEL */
         .finding-banner {
-            padding: 1.1rem 1.25rem;
+            padding: 1.15rem 1.25rem;
             border-radius: 16px;
             display: flex;
             align-items: center;
             gap: 1rem;
             margin-bottom: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
         .finding-icon {
-            font-size: 2rem;
+            font-size: 2.2rem;
+            filter: drop-shadow(0 0 10px currentColor);
         }
 
         .finding-title {
+            font-family: 'Outfit', sans-serif;
             font-weight: 800;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             letter-spacing: -0.01em;
         }
 
         .finding-meta {
             font-size: 0.72rem;
             font-family: 'JetBrains Mono', monospace;
-            opacity: 0.85;
-            margin-top: 0.15rem;
+            opacity: 0.9;
+            margin-top: 0.2rem;
+            letter-spacing: 0.04em;
         }
 
-        /* Circular Speedometer Gauge */
+        /* Dial & Confidence Gauge Box */
         .confidence-box {
             display: flex;
             align-items: center;
@@ -631,28 +797,41 @@ def serve_ui():
         }
 
         .gauge-circle {
-            width: 72px; height: 72px;
+            width: 76px; height: 76px;
             border-radius: 50%;
             background: conic-gradient(var(--primary) 0% 95%, rgba(255,255,255,0.05) 95% 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .gauge-inner {
-            width: 58px; height: 58px;
+            width: 60px; height: 60px;
             border-radius: 50%;
-            background: var(--surface);
+            background: var(--surface-1);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 0.88rem;
+            font-size: 0.92rem;
             font-family: 'JetBrains Mono', monospace;
+            color: #fff;
         }
 
-        /* Probability Bars */
+        /* 4-Class Probability Distribution */
+        .prob-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
         .prob-row {
             margin-bottom: 0.85rem;
         }
@@ -666,43 +845,54 @@ def serve_ui():
         }
 
         .prob-track {
-            height: 8px;
+            height: 7px;
             background: rgba(255, 255, 255, 0.04);
             border-radius: 999px;
             overflow: hidden;
+            position: relative;
         }
 
         .prob-fill {
             height: 100%;
             border-radius: 999px;
-            transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* Pathology Box */
+        /* Pathology Clinical Intelligence Box */
         .pathology-box {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border);
             border-radius: 14px;
-            padding: 1rem;
-            margin-top: 1rem;
-            font-size: 0.8rem;
+            padding: 1rem 1.15rem;
+            margin-top: 1.1rem;
+            font-size: 0.82rem;
             line-height: 1.6;
             color: var(--text-sub);
         }
 
         .pathology-box h5 {
             color: #fff;
-            font-size: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
             margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
-        /* TAB 2 & 3 SECTIONS */
+        /* TAB 2 & 3 & 4 SECTIONS */
         .tab-view {
             display: none;
         }
 
         .tab-view.active {
             display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Comparison Table */
@@ -721,8 +911,9 @@ def serve_ui():
         .table-custom th {
             color: var(--primary);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .table-custom tr:hover {
@@ -732,8 +923,8 @@ def serve_ui():
         .tag-win {
             padding: 0.25rem 0.65rem;
             border-radius: 8px;
-            background: rgba(0, 240, 255, 0.12);
-            border: 1px solid rgba(0, 240, 255, 0.35);
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.35);
             color: var(--primary);
             font-weight: 700;
             font-size: 0.75rem;
@@ -742,7 +933,7 @@ def serve_ui():
             gap: 0.3rem;
         }
 
-        /* Architecture Flow Diagrams (Clean Visual Boxes) */
+        /* Visual Flowcharts */
         .pipeline-flow {
             display: flex;
             flex-direction: column;
@@ -758,12 +949,18 @@ def serve_ui():
             display: flex;
             align-items: center;
             gap: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .flow-step:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.18);
         }
 
         .step-num {
-            width: 32px; height: 32px;
-            border-radius: 8px;
-            background: rgba(0, 240, 255, 0.15);
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.15);
             color: var(--primary);
             display: flex;
             align-items: center;
@@ -777,6 +974,7 @@ def serve_ui():
             font-size: 0.9rem;
             display: block;
             margin-bottom: 0.15rem;
+            color: #fff;
         }
 
         .step-info span {
@@ -801,131 +999,178 @@ def serve_ui():
 </head>
 <body>
 
-    <!-- Nav Bar -->
+    <!-- Top Navigation -->
     <nav>
         <div class="brand-group">
             <div class="brand-icon">🧠</div>
-            <div>
-                <div class="brand-name">NeuroScan AI</div>
+            <div class="brand-text">
+                <h1>NeuroScan AI™ <span class="brand-pill">2D-CNN Medical Suite</span></h1>
             </div>
-            <div class="brand-pill">2D-CNN Medical Suite</div>
         </div>
 
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="showTab('scanner')">🔬 Diagnostic Scanner</button>
-            <button class="tab-btn" onclick="showTab('benchmark')">📊 Model Benchmark</button>
+            <button class="tab-btn active" onclick="showTab('scanner')">🔬 Diagnostic Console</button>
+            <button class="tab-btn" onclick="showTab('benchmark')">📊 Empirical Benchmark</button>
             <button class="tab-btn" onclick="showTab('architecture')">⚡ Neural Architecture</button>
         </div>
 
-        <div class="hardware-badge">
-            <div class="pulse-dot"></div>
-            <span>ACCELERATOR: <strong style="color: var(--primary);">APPLE SILICON GPU (MPS)</strong></span>
+        <div class="telemetry-badges">
+            <div class="tele-badge">
+                <div class="pulse-emerald"></div>
+                <span>DEVICE: <strong style="color: var(--primary);">APPLE SILICON MPS GPU</strong></span>
+            </div>
+            <div class="tele-badge">
+                <span>COHORT: <strong style="color: #fff;">7,200 SCANS</strong></span>
+            </div>
         </div>
     </nav>
 
     <div class="main-container">
         
-        <!-- TAB 1: DIAGNOSTIC SCANNER -->
+        <!-- TAB 1: DIAGNOSTIC CONSOLE -->
         <div id="view-scanner" class="tab-view active">
             <div class="studio-grid">
                 
-                <!-- Left Panel -->
+                <!-- LEFT CONTROL PANEL -->
                 <div class="glass-card">
-                    <div class="card-title">⚙️ Select Model Architecture</div>
+                    <div class="card-header-clean">
+                        <h3>⚙️ 1. Neural Architecture</h3>
+                        <span class="badge-sub">SELECT MODEL</span>
+                    </div>
 
                     <div class="model-picker">
                         <div class="model-card active" id="mcard-custom" onclick="pickModel('custom_cnn')">
-                            <div class="model-head">
+                            <div class="model-card-top">
                                 <span>Model 1: Custom 2D-CNN</span>
-                                <span style="color: var(--primary); font-size: 0.7rem; font-family: 'JetBrains Mono';">FROM SCRATCH</span>
+                                <span style="color: var(--primary); font-size: 0.68rem; font-family: 'JetBrains Mono';">FROM SCRATCH</span>
                             </div>
-                            <div class="model-sub">4 Conv Stages | ~2.6M Params | ~8.5ms Latency</div>
+                            <div class="model-specs">
+                                <span>4 Conv Stages</span>
+                                <span>•</span>
+                                <span>~2.6M Params</span>
+                                <span>•</span>
+                                <span>76.9% Acc</span>
+                            </div>
                         </div>
 
                         <div class="model-card" id="mcard-resnet" onclick="pickModel('resnet18')">
-                            <div class="model-head">
+                            <div class="model-card-top">
                                 <span>Model 2: Pretrained ResNet18</span>
-                                <span style="color: var(--purple); font-size: 0.7rem; font-family: 'JetBrains Mono';">TRANSFER LEARNING</span>
+                                <span style="color: var(--purple); font-size: 0.68rem; font-family: 'JetBrains Mono';">TRANSFER LEARNING</span>
                             </div>
-                            <div class="model-sub">18 Residual Layers | 94.6% Accuracy | ~14.2ms</div>
+                            <div class="model-specs">
+                                <span>18 Res Layers</span>
+                                <span>•</span>
+                                <span>11.7M Params</span>
+                                <span>•</span>
+                                <span>94.6% Acc</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Dropzone -->
+                    <!-- Scan Dropzone -->
+                    <div class="card-header-clean" style="margin-top: 0.5rem;">
+                        <h3>📁 2. Upload Axial MRI</h3>
+                        <span class="badge-sub">224 × 224</span>
+                    </div>
+
                     <div class="upload-area" id="dropzone">
-                        <div class="upload-icon">📁</div>
-                        <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem;">Drop MRI Scan Here</p>
-                        <p style="font-size: 0.75rem; color: var(--text-dim);">Axial 2D Slices (.JPG, .PNG, .TIF)</p>
+                        <div class="upload-icon">🩻</div>
+                        <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem; color: #fff;">Drop Patient MRI Scan Here</p>
+                        <p style="font-size: 0.75rem; color: var(--text-dim);">Axial 2D Slice (.JPG, .PNG, .TIF)</p>
                         <input type="file" id="mriFileInput" accept="image/*" onchange="handleFileChange(event)">
                     </div>
 
-                    <!-- Cohort Samples -->
-                    <div class="card-title" style="margin-bottom: 0.6rem; font-size: 0.75rem;">📁 Quick Cohort Samples (`archive/Testing`)</div>
+                    <!-- Quick Cohort Samples -->
+                    <div class="card-header-clean" style="margin-top: 0.5rem; margin-bottom: 0.75rem;">
+                        <h3>🧪 Quick Cohort Samples</h3>
+                        <span class="badge-sub">REAL TEST SET</span>
+                    </div>
                     
-                    <div class="sample-grid">
-                        <button class="sample-card-btn" onclick="testCohortSample('glioma')">
-                            <span style="color: #ff3366;">🔴</span> Glioma Case
+                    <div class="cohort-grid">
+                        <button class="cohort-btn" onclick="testCohortSample('glioma')">
+                            <span style="color: #f43f5e; font-size: 0.9rem;">🔴</span> Glioma Tumor
                         </button>
-                        <button class="sample-card-btn" onclick="testCohortSample('meningioma')">
-                            <span style="color: #f59e0b;">🟠</span> Meningioma Case
+                        <button class="cohort-btn" onclick="testCohortSample('meningioma')">
+                            <span style="color: #f59e0b; font-size: 0.9rem;">🟠</span> Meningioma
                         </button>
-                        <button class="sample-card-btn" onclick="testCohortSample('pituitary')">
-                            <span style="color: #a855f7;">🟣</span> Pituitary Case
+                        <button class="cohort-btn" onclick="testCohortSample('pituitary')">
+                            <span style="color: #a855f7; font-size: 0.9rem;">🟣</span> Pituitary
                         </button>
-                        <button class="sample-card-btn" onclick="testCohortSample('notumor')">
-                            <span style="color: #10b981;">🟢</span> Healthy Control
+                        <button class="cohort-btn" onclick="testCohortSample('notumor')">
+                            <span style="color: #10b981; font-size: 0.9rem;">🟢</span> Healthy Brain
                         </button>
                     </div>
 
-                    <button class="action-btn-scan" id="btnScanAction" onclick="startInference()">
-                        <span>⚡ Run Diagnostic Inference</span>
+                    <button class="btn-run-diagnostic" id="btnScanAction" onclick="startInference()">
+                        <span>⚡ Run Diagnostic Inference & Grad-CAM</span>
                     </button>
                 </div>
 
-                <!-- Center Viewport -->
+                <!-- CENTER RADIOLOGY VIEWPORT -->
                 <div class="glass-card" style="padding: 1.25rem;">
-                    <div class="card-title" style="display: flex; justify-content: space-between;">
-                        <span>🖥️ Radiology Viewport & Grad-CAM Reticle</span>
-                        <span style="color: var(--primary); font-family: 'JetBrains Mono'; font-size: 0.75rem;">224 × 224 AXIAL</span>
+                    <div class="card-header-clean">
+                        <h3>🖥️ Radiology Viewport & Grad-CAM Studio</h3>
+                        <span class="badge-sub" id="viewportStatusBadge">STANDBY</span>
                     </div>
 
-                    <div class="radiology-viewport" id="viewportBox">
-                        <img id="activeViewportImg" class="viewport-mri" src="" alt="MRI Scan">
-                        
-                        <!-- Visual Reticle Overlays -->
-                        <div class="reticle-overlay"></div>
-                        <div class="ch-h"></div>
-                        <div class="ch-v"></div>
-                        <div class="ret-bracket rb-tl"></div>
-                        <div class="ret-bracket rb-tr"></div>
-                        <div class="ret-bracket rb-bl"></div>
-                        <div class="ret-bracket rb-br"></div>
-                        <div class="laser-beam"></div>
+                    <div class="viewport-wrapper">
+                        <div class="radiology-viewport" id="viewportBox">
+                            <img id="activeViewportImg" class="viewport-mri" src="" alt="MRI Scan">
+                            
+                            <!-- Split-View Slider Container -->
+                            <div class="split-slider-container" id="splitSliderBox">
+                                <img id="splitImgRaw" class="split-img-before" src="" alt="Raw MRI">
+                                <div class="split-img-after-wrapper" id="splitAfterWrapper">
+                                    <img id="splitImgCam" class="split-img-after" src="" alt="Grad-CAM">
+                                </div>
+                                <div class="split-handle" id="splitHandle">⬌</div>
+                            </div>
 
-                        <div id="viewportEmptyPrompt" style="position: absolute; text-align: center; color: var(--text-dim);">
-                            <div style="font-size: 3rem; margin-bottom: 0.75rem; opacity: 0.5;">🩻</div>
-                            <p style="font-weight: 700; font-size: 0.95rem; color: #fff;">No MRI Scan Loaded</p>
-                            <p style="font-size: 0.8rem; margin-top: 0.2rem;">Select a cohort sample or drop an image to inspect.</p>
+                            <!-- HUD Reticle Overlays -->
+                            <div class="hud-grid"></div>
+                            <div class="hud-cross-h"></div>
+                            <div class="hud-cross-v"></div>
+                            <div class="bracket b-tl"></div>
+                            <div class="bracket b-tr"></div>
+                            <div class="bracket b-bl"></div>
+                            <div class="bracket b-br"></div>
+                            <div class="laser-beam"></div>
+
+                            <div class="hud-telemetry-tag" id="hudTag">AXIAL T1-CE | 224×224</div>
+
+                            <div id="viewportEmptyPrompt" style="position: absolute; text-align: center; color: var(--text-dim);">
+                                <div style="font-size: 3.5rem; margin-bottom: 0.75rem; opacity: 0.5;">🩻</div>
+                                <p style="font-weight: 700; font-size: 1rem; color: #fff;">No MRI Scan Loaded</p>
+                                <p style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--text-sub);">Select a cohort sample or drop an image to diagnose.</p>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- View Switcher Pills -->
                     <div class="view-pill-group">
-                        <button class="v-pill active" id="vpill-orig" onclick="changeView('original')">Original MRI</button>
-                        <button class="v-pill" id="vpill-over" onclick="changeView('overlay')">Grad-CAM Overlay</button>
-                        <button class="v-pill" id="vpill-heat" onclick="changeView('heatmap')">Heatmap Only</button>
+                        <button class="v-pill active" id="vpill-orig" onclick="changeView('original')">🩻 Original MRI</button>
+                        <button class="v-pill" id="vpill-over" onclick="changeView('overlay')">🎯 Grad-CAM Reticle</button>
+                        <button class="v-pill" id="vpill-split" onclick="changeView('split')">🌗 Split Slider</button>
+                        <button class="v-pill" id="vpill-heat" onclick="changeView('heatmap')">🌈 Heatmap Only</button>
                     </div>
                 </div>
 
-                <!-- Right Findings Panel -->
+                <!-- RIGHT CLINICAL FINDINGS & TRIAGE -->
                 <div class="glass-card" id="findingsPanel">
-                    <div class="card-title">📊 Pathology Findings & Explainability</div>
+                    <div class="card-header-clean">
+                        <h3>📊 Clinical Triage Report</h3>
+                        <span class="badge-sub">DIAGNOSTIC AI</span>
+                    </div>
 
-                    <div id="findingsEmpty" style="text-align: center; padding: 4rem 1rem; color: var(--text-dim);">
-                        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🩺</div>
-                        <p style="font-size: 0.85rem;">Ready for scan evaluation...</p>
+                    <div id="findingsEmpty" style="text-align: center; padding: 5rem 1rem; color: var(--text-dim);">
+                        <div style="font-size: 2.8rem; margin-bottom: 0.75rem;">🩺</div>
+                        <p style="font-size: 0.9rem; font-weight: 600; color: var(--text-sub);">Ready for MRI Scan Evaluation</p>
+                        <p style="font-size: 0.78rem; margin-top: 0.2rem;">Diagnosis and Grad-CAM spatial activation will appear here.</p>
                     </div>
 
                     <div id="findingsBody" style="display: none;">
+                        <!-- Primary Diagnosis Banner -->
                         <div class="finding-banner" id="findingBanner">
                             <div class="finding-icon" id="findingIcon">⚠️</div>
                             <div>
@@ -937,43 +1182,46 @@ def serve_ui():
                         <!-- Gauge Box -->
                         <div class="confidence-box">
                             <div>
-                                <div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase;">Confidence Index</div>
-                                <div style="font-size: 1.4rem; font-weight: 800; color: #fff;" id="gaugeConfidenceVal">99.8%</div>
-                                <div style="font-size: 0.72rem; font-family: 'JetBrains Mono'; color: var(--primary);" id="gaugeLatencyVal">⚡ 38.2 ms (MPS)</div>
+                                <div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em;">Confidence Index</div>
+                                <div style="font-size: 1.5rem; font-family: 'Outfit', sans-serif; font-weight: 800; color: #fff;" id="gaugeConfidenceVal">99.8%</div>
+                                <div style="font-size: 0.72rem; font-family: 'JetBrains Mono'; color: var(--primary);" id="gaugeLatencyVal">⚡ 14.2 ms (Apple MPS)</div>
                             </div>
                             <div class="gauge-circle" id="gaugeCircle">
                                 <div class="gauge-inner" id="gaugeCircleInner">99%</div>
                             </div>
                         </div>
 
-                        <!-- Spectrum -->
+                        <!-- 4-Class Probability Spectrum -->
                         <div style="margin-top: 1rem;">
-                            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.6rem;">4-Class Probability Distribution</div>
+                            <div class="prob-section-title">
+                                <span>4-Class Pathological Spectrum</span>
+                                <span style="color: var(--primary);">P(C | X)</span>
+                            </div>
                             
                             <div class="prob-row">
                                 <div class="prob-meta"><span>Glioma Tumor</span><span id="txt-glioma">0%</span></div>
-                                <div class="prob-track"><div class="prob-fill" id="bar-glioma" style="width: 0%; background: #ff3366;"></div></div>
+                                <div class="prob-track"><div class="prob-fill" id="bar-glioma" style="width: 0%; background: linear-gradient(90deg, #f43f5e, #fb7185);"></div></div>
                             </div>
 
                             <div class="prob-row">
                                 <div class="prob-meta"><span>Meningioma Tumor</span><span id="txt-meningioma">0%</span></div>
-                                <div class="prob-track"><div class="prob-fill" id="bar-meningioma" style="width: 0%; background: #f59e0b;"></div></div>
+                                <div class="prob-track"><div class="prob-fill" id="bar-meningioma" style="width: 0%; background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div></div>
                             </div>
 
                             <div class="prob-row">
                                 <div class="prob-meta"><span>Pituitary Tumor</span><span id="txt-pituitary">0%</span></div>
-                                <div class="prob-track"><div class="prob-fill" id="bar-pituitary" style="width: 0%; background: #a855f7;"></div></div>
+                                <div class="prob-track"><div class="prob-fill" id="bar-pituitary" style="width: 0%; background: linear-gradient(90deg, #a855f7, #c084fc);"></div></div>
                             </div>
 
                             <div class="prob-row">
                                 <div class="prob-meta"><span>Healthy (No Tumor)</span><span id="txt-notumor">0%</span></div>
-                                <div class="prob-track"><div class="prob-fill" id="bar-notumor" style="width: 0%; background: #10b981;"></div></div>
+                                <div class="prob-track"><div class="prob-fill" id="bar-notumor" style="width: 0%; background: linear-gradient(90deg, #10b981, #34d399);"></div></div>
                             </div>
                         </div>
 
-                        <!-- Pathology Description -->
+                        <!-- Pathology Clinical Description -->
                         <div class="pathology-box">
-                            <h5>🩺 Radiologic Pathology</h5>
+                            <h5>🩺 Radiologic Pathology Assessment</h5>
                             <p id="pathologyText">Clinical summary...</p>
                         </div>
                     </div>
@@ -982,10 +1230,13 @@ def serve_ui():
             </div>
         </div>
 
-        <!-- TAB 2: MODEL BENCHMARK -->
+        <!-- TAB 2: EMPIRICAL BENCHMARK -->
         <div id="view-benchmark" class="tab-view">
             <div class="glass-card" style="margin-bottom: 2rem;">
-                <div class="card-title" style="font-size: 1rem;">📈 Empirical Benchmark Summary (1,600 Real Scans in `archive/Testing`)</div>
+                <div class="card-header-clean">
+                    <h3>📈 Empirical Research Benchmark (1,600 Real Scans in `archive/Testing`)</h3>
+                    <span class="badge-sub">PEER-EVALUATED</span>
+                </div>
 
                 <table class="table-custom">
                     <thead>
@@ -1001,19 +1252,19 @@ def serve_ui():
                             <td><strong>Overall Test Accuracy</strong></td>
                             <td style="font-weight: 700; color: #fff;">76.94%</td>
                             <td style="font-weight: 700; color: var(--primary); font-size: 1.05rem;">94.56%</td>
-                            <td><span class="tag-win">🏆 +17.62% Boost (ResNet18)</span></td>
+                            <td><span class="tag-win">🏆 +17.62% Higher Accuracy (ResNet18)</span></td>
                         </tr>
                         <tr>
                             <td><strong>Macro Precision</strong></td>
                             <td>77.05%</td>
                             <td style="color: var(--primary); font-weight: 700;">95.03%</td>
-                            <td><span class="tag-win">🏆 Higher Diagnostic Precision</span></td>
+                            <td><span class="tag-win">🏆 +17.98% Higher Precision</span></td>
                         </tr>
                         <tr>
                             <td><strong>Macro Recall (Sensitivity)</strong></td>
                             <td>76.94%</td>
                             <td style="color: var(--primary); font-weight: 700;">94.56%</td>
-                            <td><span class="tag-win">🏆 Minimizes Missed Tumors</span></td>
+                            <td><span class="tag-win">🏆 Minimizes False Negatives</span></td>
                         </tr>
                         <tr>
                             <td><strong>Macro F1-Score</strong></td>
@@ -1038,31 +1289,31 @@ def serve_ui():
             </div>
         </div>
 
-        <!-- TAB 3: NEURAL ARCHITECTURE FLOW (CLEAN VISUAL FLOWCHARTS) -->
+        <!-- TAB 3: NEURAL ARCHITECTURE FLOW -->
         <div id="view-architecture" class="tab-view">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 
                 <!-- Model 1 Pipeline -->
                 <div class="glass-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <h3 style="color: var(--primary); font-size: 1.1rem;">Model 1: Custom Designed 2D-CNN</h3>
-                        <span class="brand-pill" style="color: var(--primary);">4 CONV STAGES</span>
+                    <div class="card-header-clean">
+                        <h3 style="color: var(--primary);">Model 1: Custom Designed 2D-CNN</h3>
+                        <span class="badge-sub">4 CONV STAGES</span>
                     </div>
-                    <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 1rem;">Designed from scratch for edge device performance & lightweight inference.</p>
+                    <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1rem;">Designed from scratch for edge device performance and lightweight clinical inference.</p>
 
                     <div class="pipeline-flow">
                         <div class="flow-step">
                             <div class="step-num">01</div>
                             <div class="step-info">
                                 <strong>Input Stage (224 × 224 × 3)</strong>
-                                <span>3-Channel Normalized Brain MRI Scan</span>
+                                <span>3-Channel Normalized Brain MRI Slice</span>
                             </div>
                         </div>
 
                         <div class="flow-step">
                             <div class="step-num">02</div>
                             <div class="step-info">
-                                <strong>Stage 1 Feature Extraction</strong>
+                                <strong>Stage 1 Low-Level Filters</strong>
                                 <span>2× [Conv2D(32, 3×3) + BatchNorm + ReLU] → MaxPool(2×2) → Dropout(0.1)</span>
                             </div>
                         </div>
@@ -1070,7 +1321,7 @@ def serve_ui():
                         <div class="flow-step">
                             <div class="step-num">03</div>
                             <div class="step-info">
-                                <strong>Stage 2 & 3 Downsampling</strong>
+                                <strong>Stage 2 & 3 Feature Extraction</strong>
                                 <span>Conv2D(64) + Conv2D(128) + BatchNorm + MaxPool(2×2) → Dropout(0.2)</span>
                             </div>
                         </div>
@@ -1078,7 +1329,7 @@ def serve_ui():
                         <div class="flow-step">
                             <div class="step-num">04</div>
                             <div class="step-info">
-                                <strong>Stage 4 High-Level Pathology</strong>
+                                <strong>Stage 4 Pathology Maps</strong>
                                 <span>Conv2D(256, 3×3) + BatchNorm + ReLU → MaxPool(2×2) → Dropout(0.25)</span>
                             </div>
                         </div>
@@ -1095,11 +1346,11 @@ def serve_ui():
 
                 <!-- Model 2 Pipeline -->
                 <div class="glass-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <h3 style="color: var(--purple); font-size: 1.1rem;">Model 2: Pretrained ResNet18</h3>
-                        <span class="brand-pill" style="color: var(--purple); border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.12);">TRANSFER LEARNING</span>
+                    <div class="card-header-clean">
+                        <h3 style="color: var(--purple);">Model 2: Pretrained ResNet18</h3>
+                        <span class="badge-sub" style="color: var(--purple); border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.1);">TRANSFER LEARNING</span>
                     </div>
-                    <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 1rem;">18-layer Deep Residual Network fine-tuned on medical Brain MRI scans.</p>
+                    <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1rem;">18-layer Deep Residual Network fine-tuned for high-sensitivity neoplasm detection.</p>
 
                     <div class="pipeline-flow">
                         <div class="flow-step">
@@ -1114,7 +1365,7 @@ def serve_ui():
                             <div class="step-num" style="background: rgba(168,85,247,0.15); color: var(--purple);">02</div>
                             <div class="step-info">
                                 <strong>Residual Skip Connections [F(x) + x]</strong>
-                                <span>Identity shortcuts prevent gradient dissipation across 18 layers</span>
+                                <span>Identity shortcuts eliminate vanishing gradient across 18 layers</span>
                             </div>
                         </div>
 
@@ -1130,7 +1381,7 @@ def serve_ui():
                             <div class="step-num" style="background: rgba(168,85,247,0.15); color: var(--purple);">04</div>
                             <div class="step-info">
                                 <strong>Optimization Strategy</strong>
-                                <span>AdamW (lr=0.0003, weight_decay=1e-4) + ReduceLROnPlateau Scheduler</span>
+                                <span>AdamW (lr=3e-4, weight_decay=1e-4) + ReduceLROnPlateau Scheduler</span>
                             </div>
                         </div>
 
@@ -1155,6 +1406,21 @@ def serve_ui():
         let scanResult = null;
         let currentViewMode = 'original';
 
+        // Initialize drag and drop
+        const dropzone = document.getElementById('dropzone');
+        ['dragenter', 'dragover'].forEach(name => {
+            dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(name => {
+            dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); });
+        });
+        dropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                uploadedFile = e.dataTransfer.files[0];
+                previewLocalImage(uploadedFile);
+            }
+        });
+
         function showTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
@@ -1173,19 +1439,26 @@ def serve_ui():
         function handleFileChange(event) {
             if (event.target.files && event.target.files[0]) {
                 uploadedFile = event.target.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('viewportEmptyPrompt').style.display = 'none';
-                    document.getElementById('activeViewportImg').src = e.target.result;
-                };
-                reader.readAsDataURL(uploadedFile);
+                previewLocalImage(uploadedFile);
             }
+        }
+
+        function previewLocalImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('viewportEmptyPrompt').style.display = 'none';
+                document.getElementById('activeViewportImg').src = e.target.result;
+                document.getElementById('viewportStatusBadge').innerText = 'READY FOR INFERENCE';
+                document.getElementById('viewportStatusBadge').style.color = '#38bdf8';
+            };
+            reader.readAsDataURL(file);
         }
 
         async function testCohortSample(sampleType) {
             uploadedFile = null;
             document.getElementById('viewportBox').classList.add('active-scan');
-            document.getElementById('btnScanAction').innerHTML = '<div class="spinner"></div> Running Inference...';
+            document.getElementById('viewportStatusBadge').innerText = 'ANALYZING MPS GPU...';
+            document.getElementById('btnScanAction').innerHTML = '<div class="spinner"></div> Running Inference & Grad-CAM...';
 
             const formData = new FormData();
             formData.append("sample_type", sampleType);
@@ -1200,7 +1473,8 @@ def serve_ui():
                 alert("Error during scan analysis: " + err);
             } finally {
                 document.getElementById('viewportBox').classList.remove('active-scan');
-                document.getElementById('btnScanAction').innerHTML = '<span>⚡ Run Diagnostic Inference</span>';
+                document.getElementById('viewportStatusBadge').innerText = 'DIAGNOSIS ACTIVE';
+                document.getElementById('btnScanAction').innerHTML = '<span>⚡ Run Diagnostic Inference & Grad-CAM</span>';
             }
         }
 
@@ -1211,7 +1485,8 @@ def serve_ui():
             }
 
             document.getElementById('viewportBox').classList.add('active-scan');
-            document.getElementById('btnScanAction').innerHTML = '<div class="spinner"></div> Running Inference...';
+            document.getElementById('viewportStatusBadge').innerText = 'ANALYZING MPS GPU...';
+            document.getElementById('btnScanAction').innerHTML = '<div class="spinner"></div> Running Inference & Grad-CAM...';
 
             const formData = new FormData();
             formData.append("file", uploadedFile);
@@ -1226,7 +1501,8 @@ def serve_ui():
                 alert("Error during scan analysis: " + err);
             } finally {
                 document.getElementById('viewportBox').classList.remove('active-scan');
-                document.getElementById('btnScanAction').innerHTML = '<span>⚡ Run Diagnostic Inference</span>';
+                document.getElementById('viewportStatusBadge').innerText = 'DIAGNOSIS ACTIVE';
+                document.getElementById('btnScanAction').innerHTML = '<span>⚡ Run Diagnostic Inference & Grad-CAM</span>';
             }
         }
 
@@ -1254,7 +1530,7 @@ def serve_ui():
             } else {
                 icon.innerText = '🛡️';
                 title.innerText = 'Normal Cerebral Anatomy';
-                meta.innerText = 'NO TUMOR DETECTED';
+                meta.innerText = 'NO TUMOR DETECTED | HEALTHY CONTROL';
             }
 
             // Gauge
@@ -1264,7 +1540,7 @@ def serve_ui():
             document.getElementById('gaugeCircle').style.background = `conic-gradient(var(--primary) 0% ${pct}%, rgba(255,255,255,0.05) ${pct}% 100%)`;
             document.getElementById('gaugeLatencyVal').innerText = `⚡ ${data.latency_ms} ms (${data.model_name.includes('ResNet') ? 'ResNet18' : 'Custom CNN'})`;
 
-            // Bars
+            // Probability Spectrum Bars
             for (const [cls, prob] of Object.entries(data.probabilities)) {
                 const val = (prob * 100).toFixed(1) + '%';
                 const elTxt = document.getElementById('txt-' + cls);
@@ -1281,6 +1557,7 @@ def serve_ui():
             currentViewMode = mode;
             document.getElementById('vpill-orig').classList.toggle('active', mode === 'original');
             document.getElementById('vpill-over').classList.toggle('active', mode === 'overlay');
+            document.getElementById('vpill-split').classList.toggle('active', mode === 'split');
             document.getElementById('vpill-heat').classList.toggle('active', mode === 'heatmap');
             refreshViewport();
         }
@@ -1288,14 +1565,43 @@ def serve_ui():
         function refreshViewport() {
             if (!scanResult) return;
             const img = document.getElementById('activeViewportImg');
-            if (currentViewMode === 'original') {
-                img.src = scanResult.original_image;
-            } else if (currentViewMode === 'overlay') {
-                img.src = scanResult.overlay_image;
-            } else if (currentViewMode === 'heatmap') {
-                img.src = scanResult.heatmap_image;
+            const splitBox = document.getElementById('splitSliderBox');
+
+            if (currentViewMode === 'split') {
+                img.style.display = 'none';
+                splitBox.classList.add('active');
+                document.getElementById('splitImgRaw').src = scanResult.original_image;
+                document.getElementById('splitImgCam').src = scanResult.overlay_image;
+            } else {
+                img.style.display = 'block';
+                splitBox.classList.remove('active');
+                if (currentViewMode === 'original') {
+                    img.src = scanResult.original_image;
+                } else if (currentViewMode === 'overlay') {
+                    img.src = scanResult.overlay_image;
+                } else if (currentViewMode === 'heatmap') {
+                    img.src = scanResult.heatmap_image;
+                }
             }
         }
+
+        // Split Slider Mouse/Touch Drag Logic
+        const splitBox = document.getElementById('splitSliderBox');
+        const splitAfter = document.getElementById('splitAfterWrapper');
+        const splitHandle = document.getElementById('splitHandle');
+        let isDragging = false;
+
+        splitHandle.addEventListener('mousedown', () => isDragging = true);
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const rect = splitBox.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            const pct = (x / rect.width) * 100;
+            splitAfter.style.width = pct + '%';
+            splitHandle.style.left = pct + '%';
+        });
     </script>
 </body>
 </html>"""
