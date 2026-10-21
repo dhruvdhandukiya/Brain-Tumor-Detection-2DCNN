@@ -4,3 +4,5 @@ __pycache__/
 .cache/
 .ipynb_checkpoints/
 archive/
+models/ann_best.pth
+models/resnet50_enhanced_best.pth

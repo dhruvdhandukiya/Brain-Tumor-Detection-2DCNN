@@ -1,0 +1,38 @@
+{
+    "ANN (Deep MLP)": {
+        "test_accuracy": 70.75,
+        "macro_precision": 70.85373652343073,
+        "macro_recall": 70.75,
+        "macro_f1": 70.3435504067083,
+        "parameters": 38569604,
+        "latency_ms": 8.323328793048859,
+        "why_it_performs": "Loses 2D spatial context due to 1D flattening. Massive 38.5M parameters lead to overfitting."
+    },
+    "RNN (BiLSTM)": {
+        "test_accuracy": 62.5625,
+        "macro_precision": 62.64205306607723,
+        "macro_recall": 62.5625,
+        "macro_f1": 60.14216029491415,
+        "parameters": 386372,
+        "latency_ms": 8.268422484397888,
+        "why_it_performs": "Sequential row scanning suffers from vanishing gradients across 224 steps and cannot capture diagonal/local 2D spatial features."
+    },
+    "Custom 2D-CNN": {
+        "test_accuracy": 76.9375,
+        "macro_precision": 77.0466489628551,
+        "macro_recall": 76.9375,
+        "macro_f1": 75.91602209373924,
+        "parameters": 990436,
+        "latency_ms": 8.5,
+        "why_it_performs": "2D convolutions capture local receptive fields with parameter sharing, reaching 76.94% from scratch."
+    },
+    "Pretrained ResNet18": {
+        "test_accuracy": 94.5625,
+        "macro_precision": 95.025080151712,
+        "macro_recall": 94.5625,
+        "macro_f1": 94.46172870535308,
+        "parameters": 11571524,
+        "latency_ms": 14.2,
+        "why_it_performs": "Deep residual connections + 1.28M ImageNet visual priors enable high-level neoplasm boundary recognition (94.56%)."
+    }
+}

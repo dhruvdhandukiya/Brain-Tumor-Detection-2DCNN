@@ -123,8 +123,9 @@ def run_single_inference(model, image, target_layer):
     
     t0 = time.time()
     with torch.no_grad():
-        outputs = model(tensor)
-        probs = torch.softmax(outputs, dim=1).squeeze().cpu().numpy()
+        p1 = torch.softmax(model(tensor), dim=1)
+        p2 = torch.softmax(model(torch.flip(tensor, dims=[3])), dim=1)
+        probs = ((p1 + p2) / 2.0).squeeze().cpu().numpy()
         pred_idx = int(np.argmax(probs))
     latency_ms = round((time.time() - t0) * 1000, 1)
 
