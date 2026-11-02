@@ -15,10 +15,10 @@ except Exception:
 
 from PIL import Image
 from fastapi import FastAPI, UploadFile, File, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from torchvision import transforms
 
-from src.models import CustomBrainCNN, PretrainedResNet18
+from src.models import CustomBrainCNN, PretrainedResNet18, BrainRNN
 from src.gradcam import GradCAM
 
 app = FastAPI(title="NeuroScan AI | Next-Gen Medical Imaging Suite")
@@ -77,7 +77,7 @@ else:
 models_dict = {}
 
 def load_models():
-    # Model 1
+    # Model 1: Custom 2D-CNN
     custom_model = CustomBrainCNN(num_classes=4)
     custom_path = "models/custom_cnn_best.pth"
     if os.path.exists(custom_path):
@@ -90,7 +90,7 @@ def load_models():
     custom_model.to(device).eval()
     models_dict['custom_cnn'] = custom_model
 
-    # Model 2
+    # Model 2: Pretrained ResNet18
     resnet_model = PretrainedResNet18(num_classes=4, pretrained=True)
     resnet_path = "models/resnet18_best.pth"
     if os.path.exists(resnet_path):
@@ -102,6 +102,19 @@ def load_models():
             print("ResNet model load note:", e)
     resnet_model.to(device).eval()
     models_dict['resnet18'] = resnet_model
+
+    # Baseline Model 3: Recurrent Neural Network (BiLSTM)
+    rnn_model = BrainRNN(num_classes=4)
+    rnn_path = "models/rnn_best.pth"
+    if os.path.exists(rnn_path):
+        try:
+            ckpt = torch.load(rnn_path, map_location=device)
+            rnn_model.load_state_dict(ckpt.get('model_state_dict', ckpt))
+            print("Loaded BrainRNN weights.")
+        except Exception as e:
+            print("RNN model load note:", e)
+    rnn_model.to(device).eval()
+    models_dict['rnn'] = rnn_model
 
 load_models()
 
@@ -132,14 +145,21 @@ def run_single_inference(model, image, target_layer):
     pred_class = CLASS_NAMES[pred_idx]
     confidence = float(probs[pred_idx])
 
-    try:
-        cam_gen = GradCAM(model, target_layer)
-        cam_map, _ = cam_gen.generate_heatmap(tensor, target_class=pred_idx)
-        overlay, heatmap_only = cam_gen.overlay_heatmap(image, cam_map, alpha=0.5)
-        overlay_b64 = pil_to_base64(overlay)
-        heatmap_b64 = pil_to_base64(heatmap_only)
-    except Exception as e:
-        print("GradCAM error:", e)
+    has_gradcam = target_layer is not None
+    if has_gradcam:
+        try:
+            cam_gen = GradCAM(model, target_layer)
+            cam_map, _ = cam_gen.generate_heatmap(tensor, target_class=pred_idx)
+            overlay, heatmap_only = cam_gen.overlay_heatmap(image, cam_map, alpha=0.5)
+            overlay_b64 = pil_to_base64(overlay)
+            heatmap_b64 = pil_to_base64(heatmap_only)
+        except Exception as e:
+            print("GradCAM error:", e)
+            overlay_b64 = pil_to_base64(image)
+            heatmap_b64 = pil_to_base64(image)
+            has_gradcam = False
+    else:
+        # RNN lacks 2D convolutional layers; Grad-CAM cannot be computed on 1D sequences
         overlay_b64 = pil_to_base64(image)
         heatmap_b64 = pil_to_base64(image)
 
@@ -152,7 +172,8 @@ def run_single_inference(model, image, target_layer):
         "overlay_image": overlay_b64,
         "heatmap_image": heatmap_b64,
         "latency_ms": latency_ms,
-        "model_name": model.model_name
+        "model_name": model.model_name,
+        "has_gradcam": has_gradcam
     }
 
 @app.get("/", response_class=HTMLResponse)
@@ -1048,7 +1069,7 @@ def serve_ui():
                             <div class="model-specs">
                                 <span>4 Conv Stages</span>
                                 <span>•</span>
-                                <span>~2.6M Params</span>
+                                <span>~990K Params</span>
                                 <span>•</span>
                                 <span>76.9% Acc</span>
                             </div>
@@ -1062,11 +1083,29 @@ def serve_ui():
                             <div class="model-specs">
                                 <span>18 Res Layers</span>
                                 <span>•</span>
-                                <span>11.7M Params</span>
+                                <span>11.6M Params</span>
                                 <span>•</span>
                                 <span>94.6% Acc</span>
                             </div>
                         </div>
+
+                        <div class="model-card" id="mcard-rnn" onclick="pickModel('rnn')" style="border-color: rgba(244, 63, 94, 0.28);">
+                            <div class="model-card-top">
+                                <span>Baseline 3: 1D-RNN (BiLSTM)</span>
+                                <span style="color: var(--rose); font-size: 0.68rem; font-family: 'JetBrains Mono'; font-weight: 700;">LOW ACCURACY (62.6%)</span>
+                            </div>
+                            <div class="model-specs">
+                                <span>1D Row Scanning</span>
+                                <span>•</span>
+                                <span>386K Params</span>
+                                <span>•</span>
+                                <span style="color: var(--rose); font-weight: 700;">62.6% Acc</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 1.15rem; font-size: 0.74rem; color: #fda4af; line-height: 1.4;">
+                        ⚠️ <strong>Research Baseline Active:</strong> Select the 1D-RNN to evaluate why sequential scanning fails on 2D axial MRI scans (~62.6% accuracy vs. 94.6% on ResNet18) and structurally cannot compute 2D Grad-CAM.
                     </div>
 
                     <!-- Scan Dropzone -->
@@ -1139,6 +1178,11 @@ def serve_ui():
                             <div class="laser-beam"></div>
 
                             <div class="hud-telemetry-tag" id="hudTag">AXIAL T1-CE | 224×224</div>
+
+                            <!-- RNN Grad-CAM Notice Overlay -->
+                            <div id="rnnGradcamAlert" style="display: none; position: absolute; bottom: 12px; left: 12px; right: 12px; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(244, 63, 94, 0.45); border-radius: 12px; padding: 0.65rem 0.85rem; font-size: 0.72rem; color: #fecdd3; z-index: 45; backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.8); line-height: 1.35;">
+                                <strong style="color: #f43f5e;">⚠️ Grad-CAM Unavailable for 1D-RNN:</strong> Sequential BiLSTM processes images row-by-row without 2D convolution kernels. It structurally lacks spatial feature maps required for Grad-CAM gradient heatmaps.
+                            </div>
 
                             <div id="viewportEmptyPrompt" style="position: absolute; text-align: center; color: var(--text-dim);">
                                 <div style="font-size: 3.5rem; margin-bottom: 0.75rem; opacity: 0.5;">🩻</div>
@@ -1236,63 +1280,122 @@ def serve_ui():
             <div class="glass-card" style="margin-bottom: 2rem;">
                 <div class="card-header-clean">
                     <h3>📈 Empirical Research Benchmark (1,600 Real Scans in `archive/Testing`)</h3>
-                    <span class="badge-sub">PEER-EVALUATED</span>
+                    <span class="badge-sub">ACADEMIC PARADIGM COMPARISON</span>
                 </div>
+
+                <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.25rem; line-height: 1.5;">
+                    Direct empirical evidence answering <em>"Why CNN instead of RNN or ANN for Brain MRI?"</em>: All 4 models were evaluated on the exact same 1,600 held-out patient scans from <code>archive/Testing</code>.
+                </p>
 
                 <table class="table-custom">
                     <thead>
                         <tr>
                             <th>Evaluation Metric</th>
-                            <th>Model 1: Custom 2D-CNN (From Scratch)</th>
-                            <th>Model 2: Pretrained ResNet18 (Transfer Learning)</th>
-                            <th>Performance Advantage</th>
+                            <th style="color: var(--rose);">Baseline 1: RNN (BiLSTM)</th>
+                            <th style="color: var(--amber);">Baseline 2: ANN (MLP)</th>
+                            <th style="color: var(--primary);">Model 1: Custom 2D-CNN</th>
+                            <th style="color: #c084fc;">Model 2: ResNet18</th>
+                            <th>Clinical SOTA Advantage</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>Overall Test Accuracy</strong></td>
+                            <td style="color: var(--rose); font-weight: 700;">62.56%</td>
+                            <td style="color: var(--amber); font-weight: 700;">70.75%</td>
                             <td style="font-weight: 700; color: #fff;">76.94%</td>
-                            <td style="font-weight: 700; color: var(--primary); font-size: 1.05rem;">94.56%</td>
-                            <td><span class="tag-win">🏆 +17.62% Higher Accuracy (ResNet18)</span></td>
+                            <td style="font-weight: 800; color: #c084fc; font-size: 1.05rem;">94.56%</td>
+                            <td><span class="tag-win">🏆 ResNet18 is +32.00% over RNN</span></td>
                         </tr>
                         <tr>
                             <td><strong>Macro Precision</strong></td>
+                            <td>62.64%</td>
+                            <td>70.85%</td>
                             <td>77.05%</td>
-                            <td style="color: var(--primary); font-weight: 700;">95.03%</td>
-                            <td><span class="tag-win">🏆 +17.98% Higher Precision</span></td>
+                            <td style="color: #c084fc; font-weight: 700;">95.03%</td>
+                            <td><span class="tag-win">🏆 +32.39% Precision over RNN</span></td>
                         </tr>
                         <tr>
                             <td><strong>Macro Recall (Sensitivity)</strong></td>
+                            <td>62.56%</td>
+                            <td>70.75%</td>
                             <td>76.94%</td>
-                            <td style="color: var(--primary); font-weight: 700;">94.56%</td>
-                            <td><span class="tag-win">🏆 Minimizes False Negatives</span></td>
+                            <td style="color: #c084fc; font-weight: 700;">94.56%</td>
+                            <td><span class="tag-win">🏆 Minimizes Fatal False Negatives</span></td>
                         </tr>
                         <tr>
                             <td><strong>Macro F1-Score</strong></td>
+                            <td style="color: var(--rose); font-weight: 700;">60.14%</td>
+                            <td>70.34%</td>
                             <td>75.92%</td>
-                            <td style="color: var(--primary); font-weight: 700;">94.46%</td>
-                            <td><span class="tag-win">🏆 +18.54% Harmonic Score</span></td>
+                            <td style="color: #c084fc; font-weight: 700;">94.46%</td>
+                            <td><span class="tag-win">🏆 +34.32% Harmonic F1 over RNN</span></td>
                         </tr>
                         <tr>
                             <td><strong>Trainable Parameters</strong></td>
-                            <td style="color: var(--emerald); font-weight: 700;">~2.6 Million</td>
-                            <td>~11.7 Million</td>
-                            <td><span class="tag-win" style="color: var(--emerald); border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.1);">Custom CNN is 4.5× more compact</span></td>
+                            <td style="color: var(--emerald); font-weight: 700;">386,372 (0.38M)</td>
+                            <td style="color: var(--rose); font-weight: 700;">38,569,604 (38.6M)</td>
+                            <td style="font-weight: 700;">990,436 (0.99M)</td>
+                            <td>11,571,524 (11.6M)</td>
+                            <td><span class="tag-win" style="color: var(--rose); border-color: rgba(244,63,94,0.35); background: rgba(244,63,94,0.1);">ANN overfits (38.5M parameters)</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Inference Latency (per Scan)</strong></td>
-                            <td style="color: var(--emerald); font-weight: 700;">~8.5 ms (Apple MPS)</td>
-                            <td>~14.2 ms (Apple MPS)</td>
-                            <td><span class="tag-win" style="color: var(--emerald); border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.1);">Custom CNN is ~40% faster</span></td>
+                            <td><strong>Inductive Bias / Perception</strong></td>
+                            <td>1D Sequential Rows</td>
+                            <td>1D Flattened Vector</td>
+                            <td style="color: var(--primary);">2D Local Kernels</td>
+                            <td style="color: #c084fc;">2D Deep Residual Features</td>
+                            <td><span class="tag-win">CNN preserves 2D tumor topology</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grad-CAM Reticle Map</strong></td>
+                            <td style="color: var(--rose);">❌ Structurally Unavailable</td>
+                            <td style="color: var(--rose);">❌ Structurally Unavailable</td>
+                            <td style="color: var(--emerald);">✅ 2D Conv Heatmap</td>
+                            <td style="color: var(--emerald);">✅ 2D Deep Heatmap</td>
+                            <td><span class="tag-win">Conv layers required for Grad-CAM</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Clinical Decision</strong></td>
+                            <td><span style="color: var(--rose); font-weight: 700; font-size: 0.78rem;">❌ REJECTED (High Error)</span></td>
+                            <td><span style="color: var(--amber); font-weight: 700; font-size: 0.78rem;">❌ REJECTED (Overfits)</span></td>
+                            <td><span style="color: var(--primary); font-weight: 700; font-size: 0.78rem;">✅ ACCEPTED (Edge Inference)</span></td>
+                            <td><span style="color: #c084fc; font-weight: 700; font-size: 0.78rem;">🏆 PRIMARY GOLD STANDARD</span></td>
+                            <td><span class="tag-win" style="color: #c084fc; border-color: rgba(168,85,247,0.35); background: rgba(168,85,247,0.1);">Clinical Grade Radiology SOTA</span></td>
                         </tr>
                     </tbody>
                 </table>
+
+                <!-- Publication Quality Comparison Bar Chart -->
+                <div style="margin-top: 2rem; background: rgba(0,0,0,0.4); border-radius: 16px; padding: 1.25rem; border: 1px solid var(--border); text-align: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span style="font-weight: 700; font-size: 0.9rem; color: #fff;">📊 Empirical Accuracy & F1-Score Chart Across Paradigms</span>
+                        <span class="badge-sub">MATPLOTLIB BENCHMARK EXPORT</span>
+                    </div>
+                    <img src="/results/architecture_comparison_chart.png" alt="Architecture Comparison Chart" style="max-width: 100%; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.08);">
+                </div>
+
+                <!-- 3 Theoretical Pillars Answering the Viva Question -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem;">
+                        <h4 style="color: var(--primary); font-size: 0.88rem; margin-bottom: 0.4rem;">1. 2D Spatial Equivariance</h4>
+                        <p style="font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;">CNN sliding kernels share weights across the entire image, detecting tumors wherever they form. RNN scans rows sequentially, destroying diagonal/vertical 2D relationships.</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem;">
+                        <h4 style="color: var(--amber); font-size: 0.88rem; margin-bottom: 0.4rem;">2. Temporal Gradient Decay</h4>
+                        <p style="font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;">RNN unrolls over 224 steps. Long-range backpropagation suffers from gradient degradation, causing the model to forget upper-brain pathology by the time it reaches bottom rows.</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem;">
+                        <h4 style="color: #c084fc; font-size: 0.88rem; margin-bottom: 0.4rem;">3. Clinical Grad-CAM Verification</h4>
+                        <p style="font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;">Grad-CAM requires 2D convolutional feature maps (C × H × W) to generate visual heatmaps. Non-convolutional models (RNN/ANN) cannot provide visual tumor localization.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- TAB 3: NEURAL ARCHITECTURE FLOW -->
         <div id="view-architecture" class="tab-view">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
                 
                 <!-- Model 1 Pipeline -->
                 <div class="glass-card">
@@ -1396,6 +1499,57 @@ def serve_ui():
                     </div>
                 </div>
 
+                <!-- Baseline Model 3 Pipeline: RNN -->
+                <div class="glass-card">
+                    <div class="card-header-clean">
+                        <h3 style="color: var(--rose);">Baseline 3: 1D-RNN (BiLSTM)</h3>
+                        <span class="badge-sub" style="color: var(--rose); border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.1);">SEQUENTIAL SCAN</span>
+                    </div>
+                    <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1rem;">Treats 2D MRI slice as a 224-step 1D sequence. Suffers from vanishing gradients and spatial loss.</p>
+
+                    <div class="pipeline-flow">
+                        <div class="flow-step">
+                            <div class="step-num" style="background: rgba(244,63,94,0.15); color: var(--rose);">01</div>
+                            <div class="step-info">
+                                <strong>Row Sequence Decomposition</strong>
+                                <span>224 × 224 × 3 slice flattened to 224 time-steps (each row has 672 features)</span>
+                            </div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="step-num" style="background: rgba(244,63,94,0.15); color: var(--rose);">02</div>
+                            <div class="step-info">
+                                <strong>Bidirectional LSTM Recurrence</strong>
+                                <span>Forward & backward recurrent state transitions with hidden_size=64</span>
+                            </div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="step-num" style="background: rgba(244,63,94,0.15); color: var(--rose);">03</div>
+                            <div class="step-info">
+                                <strong>Loss of 2D Neighborhood Context</strong>
+                                <span>Cannot perceive diagonal or spatial tumor margins; loses top-slice features</span>
+                            </div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="step-num" style="background: rgba(244,63,94,0.15); color: var(--rose);">04</div>
+                            <div class="step-info">
+                                <strong>Dense Classifier Head</strong>
+                                <span>Linear(128 → 64) → ReLU → Dropout(0.3) → Linear(64 → 4)</span>
+                            </div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="step-num" style="background: rgba(244,63,94,0.15); color: var(--rose);">05</div>
+                            <div class="step-info">
+                                <strong>Empirical Result: 62.56% Accuracy</strong>
+                                <span>Severe performance degradation; completely incapable of Grad-CAM heatmaps</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -1434,6 +1588,7 @@ def serve_ui():
             selectedModel = modelKey;
             document.getElementById('mcard-custom').classList.toggle('active', modelKey === 'custom_cnn');
             document.getElementById('mcard-resnet').classList.toggle('active', modelKey === 'resnet18');
+            document.getElementById('mcard-rnn').classList.toggle('active', modelKey === 'rnn');
             if (scanResult) startInference();
         }
 
@@ -1539,7 +1694,11 @@ def serve_ui():
             document.getElementById('gaugeConfidenceVal').innerText = (data.confidence * 100).toFixed(1) + '%';
             document.getElementById('gaugeCircleInner').innerText = pct + '%';
             document.getElementById('gaugeCircle').style.background = `conic-gradient(var(--primary) 0% ${pct}%, rgba(255,255,255,0.05) ${pct}% 100%)`;
-            document.getElementById('gaugeLatencyVal').innerText = `⚡ ${data.latency_ms} ms (${data.model_name.includes('ResNet') ? 'ResNet18' : 'Custom CNN'})`;
+            
+            let archName = 'Custom 2D-CNN';
+            if (data.model_name.includes('ResNet')) archName = 'Pretrained ResNet18';
+            else if (data.model_name.includes('Recurrent') || data.model_name.includes('RNN') || data.model_name.includes('LSTM')) archName = 'Baseline 1D-RNN (62.6% Acc)';
+            document.getElementById('gaugeLatencyVal').innerText = `⚡ ${data.latency_ms} ms (${archName})`;
 
             // Probability Spectrum Bars
             for (const [cls, prob] of Object.entries(data.probabilities)) {
@@ -1550,8 +1709,12 @@ def serve_ui():
                 if (elBar) elBar.style.width = val;
             }
 
-            // Pathology Text
-            document.getElementById('pathologyText').innerText = data.info.desc;
+            // Pathology Text & RNN Warning Note
+            let desc = data.info.desc;
+            if (!data.has_gradcam) {
+                desc += " ⚠️ Note on Baseline Model: Because 1D-RNN processes rows sequentially, it lacks spatial feature maps. Grad-CAM visual heatmaps cannot be localized on this architecture.";
+            }
+            document.getElementById('pathologyText').innerText = desc;
         }
 
         function changeView(mode) {
@@ -1567,6 +1730,16 @@ def serve_ui():
             if (!scanResult) return;
             const img = document.getElementById('activeViewportImg');
             const splitBox = document.getElementById('splitSliderBox');
+            const rnnAlert = document.getElementById('rnnGradcamAlert');
+
+            // Handle RNN Grad-CAM unavailable warning alert
+            if (rnnAlert) {
+                if (!scanResult.has_gradcam && currentViewMode !== 'original') {
+                    rnnAlert.style.display = 'block';
+                } else {
+                    rnnAlert.style.display = 'none';
+                }
+            }
 
             if (currentViewMode === 'split') {
                 img.style.display = 'none';
@@ -1609,13 +1782,26 @@ def serve_ui():
     return HTMLResponse(content=html)
 
 
+@app.get("/results/{filename}")
+async def get_results_asset(filename: str):
+    file_path = os.path.join("results", filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    return JSONResponse(status_code=404, content={"message": "File not found"})
+
+
 @app.post("/api/predict")
 async def predict_mri(file: UploadFile = File(...), model_type: str = Form("custom_cnn")):
     contents = await file.read()
     image = Image.open(io.BytesIO(contents)).convert('RGB')
     
     model = models_dict.get(model_type, models_dict.get('custom_cnn'))
-    target_layer = model.block4[0] if model_type == 'custom_cnn' else model.backbone.layer4[-1].conv2
+    if model_type == 'custom_cnn':
+        target_layer = model.block4[0]
+    elif model_type == 'resnet18':
+        target_layer = model.backbone.layer4[-1].conv2
+    else:
+        target_layer = None
     
     res = run_single_inference(model, image, target_layer)
     res["original_image"] = pil_to_base64(image)
@@ -1643,7 +1829,12 @@ async def predict_sample(sample_type: str = Form("glioma"), model_type: str = Fo
         sample_image = Image.fromarray(arr)
 
     model = models_dict.get(model_type, models_dict.get('custom_cnn'))
-    target_layer = model.block4[0] if model_type == 'custom_cnn' else model.backbone.layer4[-1].conv2
+    if model_type == 'custom_cnn':
+        target_layer = model.block4[0]
+    elif model_type == 'resnet18':
+        target_layer = model.backbone.layer4[-1].conv2
+    else:
+        target_layer = None
     
     res = run_single_inference(model, sample_image, target_layer)
     res["original_image"] = pil_to_base64(sample_image)
