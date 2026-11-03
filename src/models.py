@@ -5,7 +5,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
 
-# Avoid macOS python default SSL certificate verification errors for pretrained weights
 try:
     ssl._create_default_https_context = ssl._create_unverified_context
 except Exception:
@@ -109,7 +108,6 @@ class PretrainedResNet18(nn.Module):
                 
         num_ftrs = self.backbone.fc.in_features
         
-        # Custom classification head as proposed in the repo
         self.backbone.fc = nn.Sequential(
             nn.Linear(num_ftrs, 512),
             nn.ReLU(inplace=True),
