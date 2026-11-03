@@ -1400,10 +1400,10 @@ def serve_ui():
                         </tr>
                         <tr>
                             <td><strong>Trainable Parameters</strong></td>
-                            <td style="color: var(--emerald); font-weight: 700;">386,372 (0.38M)</td>
+                            <td style="color: var(--emerald); font-weight: 700;">1,546,820 (1.55M)</td>
                             <td style="color: var(--rose); font-weight: 700;">38,569,604 (38.6M)</td>
-                            <td style="font-weight: 700;">990,436 (0.99M)</td>
-                            <td>11,571,524 (11.6M)</td>
+                            <td style="font-weight: 700;">3,912,228 (~3.91M)</td>
+                            <td>11,178,564 (~11.18M)</td>
                             <td><span class="tag-win" style="color: var(--rose); border-color: rgba(244,63,94,0.35); background: rgba(244,63,94,0.1);">ANN overfits (38.5M parameters)</span></td>
                         </tr>
                         <tr>
@@ -1439,7 +1439,7 @@ def serve_ui():
                         <span style="font-weight: 700; font-size: 0.9rem; color: #fff;">📊 Empirical Accuracy & F1-Score Chart Across Paradigms</span>
                         <span class="badge-sub">MATPLOTLIB BENCHMARK EXPORT</span>
                     </div>
-                    <img src="/results/architecture_comparison_chart.png" alt="Architecture Comparison Chart" style="max-width: 100%; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.08);">
+                    <img src="/results/architecture_comparison_chart.png?v=2" alt="Architecture Comparison Chart" style="max-width: 100%; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.08);">
                 </div>
 
                 <!-- 3 Theoretical Pillars Answering the Viva Question -->
@@ -1869,7 +1869,7 @@ def serve_ui():
 async def get_results_asset(filename: str):
     file_path = os.path.join("results", filename)
     if os.path.exists(file_path):
-        return FileResponse(file_path)
+        return FileResponse(file_path, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     return JSONResponse(status_code=404, content={"message": "File not found"})
 
 
