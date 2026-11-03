@@ -1,0 +1,7 @@
+{
+  "model_name": "Custom 2D-CNN (Pure Residual Architecture)",
+  "test_accuracy": 87.38,
+  "macro_precision": 88.44,
+  "macro_recall": 87.38,
+  "macro_f1": 86.96
+}

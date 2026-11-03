@@ -1,9 +1,3 @@
-"""
-Comprehensive Empirical Architecture Comparison:
-Artificial Neural Network (ANN/MLP) vs. Recurrent Neural Network (RNN/BiLSTM) vs. Custom 2D-CNN vs. Pretrained ResNet18
-Brain Tumor Detection from 2D Axial MRI Scans
-"""
-
 import os
 import time
 import json

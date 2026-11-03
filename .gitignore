@@ -6,3 +6,4 @@ __pycache__/
 archive/
 models/ann_best.pth
 models/resnet50_enhanced_best.pth
+models/custom_cnn_enhanced*
